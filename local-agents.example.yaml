@@ -1,0 +1,48 @@
+# Example configuration for local-agents.
+#
+# Copy to ./local-agents.yaml or ~/.config/local-agents/config.yaml, or point
+# LOCAL_AGENTS_CONFIG / --config at it. Every key is optional; the defaults shown
+# here are what you get with no file at all.
+
+ollama:
+  host: http://localhost:11434   # overridden by OLLAMA_HOST or --host
+  auto_detect: true
+  timeout: 120                   # seconds per model call
+  connect_timeout: 5
+  keep_alive: null               # e.g. "10m" to keep the model loaded
+
+workspace:
+  root: .                        # overridden by LOCAL_AGENTS_WORKSPACE or --workspace
+  allow_write: true
+  allow_delete: false            # delete_file tool only exists when true
+  max_file_bytes: 2000000
+
+security:
+  allow_shell: true              # false removes run_command from every agent
+  shell_timeout: 60
+  confirm_shell: true            # ask before each command (CLI); --auto-approve skips
+  confirm_writes: false          # ask before write_file / edit_file / move_file
+  allow_network: true            # false removes web tools
+  blocked_commands: []           # extra regexes, e.g. ['\bnpm\s+publish\b']
+  allowed_commands: []           # allow-list mode when non-empty, e.g. ['pytest', 'git status']
+
+agents:
+  research:
+    enabled: true
+    model: auto                  # "auto" selects from installed models by role
+  coding:
+    enabled: true
+    model: auto                  # or pin one: qwen2.5-coder:14b
+    max_iterations: 20
+    temperature: 0.2
+  planning:
+    model: auto
+    context_length: 16384
+
+# Extra directories to scan for custom agents (./agents is always scanned).
+agent_paths: []
+
+# Force one model for every agent (overridden by LOCAL_AGENTS_MODEL or --model).
+default_model: auto
+
+debug: false
