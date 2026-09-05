@@ -152,7 +152,9 @@ async def test_planning_agent_gets_delegate_tool_and_prompt(
 async def test_delegation_runs_other_agent(
     settings: Settings, fake_ollama: FakeOllama, registry: AgentRegistry
 ) -> None:
-    fake_ollama.queue("Sub-result: 42")  # the delegated research agent's answer
+    # The delegated research agent is tool-first: its first tool-less reply is nudged once.
+    fake_ollama.queue("What do you mean?")
+    fake_ollama.queue("Sub-result: 42")
     async with _runtime(settings, fake_ollama, registry) as runtime:
         planner = await runtime.create_agent(
             "planning",

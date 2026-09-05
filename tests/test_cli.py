@@ -329,6 +329,7 @@ def test_main_models_and_run_with_fake_ollama(
     capsys: pytest.CaptureFixture[str], tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     fake = FakeOllama()
+    fake.queue("Hmm?")  # research is tool-first: first tool-less reply gets nudged
     fake.queue("Answer: 4")
 
     monkeypatch.setattr(
@@ -344,10 +345,12 @@ def test_main_models_and_run_with_fake_ollama(
     assert data["recommended"]["coding"] == "qwen2.5-coder:14b"
     assert cli_main.main(["--no-color", "run", "research", "what", "is", "2+2", "--quiet"]) == 0
     assert capsys.readouterr().out.strip() == "Answer: 4"
+    fake.queue("Hmm?")
     fake.queue("Answer: 5")
     assert cli_main.main(["--no-color", "run", "research", "again", "--json"]) == 0
     payload = json.loads(capsys.readouterr().out)
     assert payload["output"] == "Answer: 5" and payload["agent"] == "research"
+    fake.queue("Hmm?")
     fake.queue("streamed")
     assert cli_main.main(["--no-color", "run", "research", "again"]) == 0
     assert "streamed" in capsys.readouterr().out

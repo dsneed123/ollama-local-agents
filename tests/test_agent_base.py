@@ -191,3 +191,35 @@ async def test_agent_survives_supports_tools_failure() -> None:
     result = await agent.run("x")
     assert result.output == "fine"
     assert "tool_call" in model.calls[0]["messages"][0].content  # fell back to text protocol
+
+
+class ToolFirst(Greeter):
+    name = "toolfirst"
+    tool_first = True
+
+
+async def test_tool_first_nudges_once_then_accepts_answer() -> None:
+    model = ScriptedModel(
+        ["What do you mean?", ScriptedTurn.call("echo", text="q"), "Researched answer"]
+    )
+    agent = ToolFirst(model=model, tools=[EchoTool()])
+    events = [e async for e in agent.stream("GHKCU")]
+    assert any(e.type == "nudge" for e in events)
+    result = events[-1].metadata["result"]
+    assert result.output == "Researched answer" and result.tool_calls[0].name == "echo"
+    assert model.calls[1]["messages"][-1].role == "user"
+    assert "without using any tools" in model.calls[1]["messages"][-1].content
+
+
+async def test_tool_first_gives_up_after_one_nudge() -> None:
+    model = ScriptedModel(["No idea", "Still no idea"])
+    agent = ToolFirst(model=model, tools=[EchoTool()])
+    result = await agent.run("x")
+    assert result.output == "Still no idea" and result.stop_reason == "final"
+    assert len(model.calls) == 2
+
+
+async def test_tool_first_is_inert_without_tools() -> None:
+    model = ScriptedModel(["plain"])
+    result = await ToolFirst(model=model).run("x")
+    assert result.output == "plain" and len(model.calls) == 1

@@ -12,9 +12,11 @@ class WebAgent(BaseAgent):
 
     model_role = "general"
     default_tool_groups = ("web",)
+    tool_first = True
     system_prompt = """You are a web research assistant with search and fetch tools.
 
-- Start with web_search to find candidate sources, then fetch_url the most relevant 1-3.
+- Always web_search before answering, even for terms you do not recognise; never ask
+  for clarification before searching. Then fetch_url the most relevant 1-3 results.
 - Compare what different sources say; note agreement and disagreement.
 - Prefer recent, authoritative sources; mention publication dates when visible.
 - Summarise concisely with a short source list (title + URL).

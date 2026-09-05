@@ -39,8 +39,14 @@ from local_agents.tools.base import BaseTool, ToolCallRecord, ToolResult, ToolSe
 log = logging.getLogger(__name__)
 
 EventType = Literal[
-    "start", "thinking", "token", "message", "tool_call", "tool_result", "final", "error"
+    "start", "thinking", "token", "message", "tool_call", "tool_result", "nudge", "final", "error"
 ]
+
+TOOL_FIRST_NUDGE = (
+    "You answered without using any tools. Do not ask for clarification yet: use your tools "
+    "first (for example search the exact term or read the relevant files), then answer based "
+    "on what you find."
+)
 
 
 @dataclass
@@ -129,6 +135,8 @@ class BaseAgent:
         Tool groups the runtime injects when the caller passes none.
     ``can_delegate``
         Whether the runtime should hand the agent a ``delegate`` tool.
+    ``tool_first``
+        Nudge the model once if it answers without using any tool.
 
     Override :meth:`custom_tools` to ship tools with the agent, and
     :meth:`build_system_prompt` to add dynamic context.
@@ -144,6 +152,10 @@ class BaseAgent:
     default_tool_groups: ClassVar[tuple[str, ...]] = ()
     default_permissions: ClassVar[PermissionSet | None] = None
     can_delegate: ClassVar[bool] = False
+    #: When True, an answer given before any tool has been used is sent back
+    #: once with a reminder to use tools first (helps smaller models that
+    #: skip research and ask for clarification instead).
+    tool_first: ClassVar[bool] = False
 
     def __init__(
         self,
@@ -199,6 +211,7 @@ class BaseAgent:
         final_text = ""
         stop_reason = "max_iterations"
         iteration = 0
+        nudged = False
         for iteration in range(1, self.config.max_iterations + 1):
             content_parts: list[str] = []
             thinking_parts: list[str] = []
@@ -239,6 +252,13 @@ class BaseAgent:
                 yield AgentEvent("message", content, iteration=iteration)
 
             if not tool_calls:
+                if self._should_nudge(records, nudged):
+                    nudged = True
+                    nudge = Message.user(TOOL_FIRST_NUDGE)
+                    messages.append(nudge)
+                    transcript.append(nudge)
+                    yield AgentEvent("nudge", TOOL_FIRST_NUDGE, iteration=iteration)
+                    continue
                 final_text = content.strip()
                 stop_reason = "final"
                 break
@@ -345,6 +365,9 @@ class BaseAgent:
                     log.debug("Could not determine tool support for %s", self.model, exc_info=True)
                     self._native_tools = False
         return self._native_tools
+
+    def _should_nudge(self, records: list[ToolCallRecord], nudged: bool) -> bool:
+        return self.tool_first and not nudged and not records and bool(self.tools.usable())
 
     def _remember(self, task: str, transcript: list[Message], final_text: str) -> None:
         self.memory.add(Message.user(task))

@@ -100,6 +100,10 @@ class AgentSession:
                     style.dim(f"  ↳ {truncate(first, 100)} ({result.duration:.1f}s)")
                 )
             return False
+        elif event.type == "nudge":
+            if streamed_text:
+                self.console.print()
+            self.console.print(style.dim("↻ answered without tools; asking it to research first"))
         elif event.type == "error":
             self.console.print()
             self.console.warn(event.content)
