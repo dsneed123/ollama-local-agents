@@ -10,12 +10,26 @@ from local_agents.security.commands import CommandPolicy
 from local_agents.security.permissions import PermissionSet
 from local_agents.security.workspace import Workspace
 from local_agents.tools.base import ApprovalCallback, BaseTool, ToolSet
+from local_agents.tools.calculator import calculator_tools
+from local_agents.tools.convert import convert_tools
 from local_agents.tools.data import data_tools
 from local_agents.tools.filesystem import filesystem_tools
 from local_agents.tools.shell import ConfirmCallback, shell_tools
-from local_agents.tools.web import SearchBackend, web_tools
+from local_agents.tools.sqlite import sqlite_tools
+from local_agents.tools.text import text_tools
+from local_agents.tools.web import SearchBackend, http_tools, web_tools
 
-TOOL_GROUPS: tuple[str, ...] = ("filesystem", "shell", "web", "data")
+TOOL_GROUPS: tuple[str, ...] = (
+    "filesystem",
+    "shell",
+    "web",
+    "http",
+    "data",
+    "sqlite",
+    "text",
+    "convert",
+    "calculator",
+)
 
 
 @dataclass
@@ -46,8 +60,18 @@ class ToolKit:
                 if self.allow_network
                 else []
             )
+        if name == "http":
+            return http_tools(self.http_client) if self.allow_network else []
         if name == "data":
             return data_tools(self.workspace)
+        if name == "sqlite":
+            return sqlite_tools(self.workspace)
+        if name == "text":
+            return text_tools(self.workspace)
+        if name == "convert":
+            return convert_tools(self.workspace)
+        if name == "calculator":
+            return calculator_tools()
         raise ValueError(f"Unknown tool group {name!r}; valid groups: {', '.join(TOOL_GROUPS)}")
 
     def build(

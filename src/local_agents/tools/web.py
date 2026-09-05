@@ -7,7 +7,9 @@ DuckDuckGo's HTML endpoint, which needs no API key. Tests inject an
 
 from __future__ import annotations
 
+import contextlib
 import html
+import json
 import re
 from dataclasses import dataclass
 from html.parser import HTMLParser
@@ -264,6 +266,96 @@ class WebSearchTool(BaseTool):
             return ToolResult.ok(f"No results for {query!r}")
         text = "\n".join(r.format(i) for i, r in enumerate(results, 1))
         return ToolResult.ok(text, data=[r.__dict__ for r in results])
+
+
+HTTP_METHODS = ("GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS")
+
+
+class HttpRequestTool(BaseTool):
+    """General HTTP client for testing APIs."""
+
+    name = "http_request"
+    description = (
+        "Send an HTTP request to an API endpoint and return the status, headers and body. "
+        "Supports any method, custom headers, and a JSON or raw body."
+    )
+    parameters = (
+        ToolParameter("url", "string", "Absolute http(s) URL"),
+        ToolParameter(
+            "method",
+            "string",
+            "HTTP method",
+            required=False,
+            default="GET",
+            enum=list(HTTP_METHODS),
+        ),
+        ToolParameter("headers", "object", "Request headers as an object", required=False),
+        ToolParameter("json_body", "object", "JSON object to send as the body", required=False),
+        ToolParameter(
+            "body", "string", "Raw request body (used when json_body is absent)", required=False
+        ),
+        ToolParameter(
+            "max_chars", "integer", "Truncate the response body", required=False, default=6000
+        ),
+    )
+    permission = Permission.NETWORK
+
+    def __init__(self, client: httpx.AsyncClient | None = None) -> None:
+        self._client = client or make_http_client()
+
+    async def execute(
+        self,
+        url: str,
+        method: str = "GET",
+        headers: dict[str, str] | None = None,
+        json_body: dict[str, object] | None = None,
+        body: str | None = None,
+        max_chars: int = 6000,
+    ) -> ToolResult:
+        url = validate_url(url)
+        kwargs: dict[str, object] = {"headers": headers or {}}
+        if json_body is not None:
+            kwargs["json"] = json_body
+        elif body is not None:
+            kwargs["content"] = body.encode("utf-8")
+        try:
+            response = await self._client.request(method.upper(), url, **kwargs)  # type: ignore[arg-type]
+        except httpx.TimeoutException as exc:
+            raise ToolError(f"Timed out requesting {url}") from exc
+        except httpx.HTTPError as exc:
+            raise ToolError(f"Request to {url} failed: {exc}") from exc
+        text = response.text
+        content_type = response.headers.get("content-type", "")
+        if "json" in content_type:
+            with contextlib.suppress(ValueError):
+                text = json.dumps(response.json(), indent=2)
+        truncated = len(text) > max_chars
+        shown_headers = "\n".join(
+            f"  {k}: {v}"
+            for k, v in response.headers.items()
+            if k.lower()
+            in ("content-type", "content-length", "location", "server", "date", "x-request-id")
+        )
+        output = (
+            f"{method.upper()} {url}\nStatus: {response.status_code} {response.reason_phrase}\n"
+            f"Headers:\n{shown_headers}\n\n{text[:max_chars]}"
+        )
+        if truncated:
+            output += f"\n... [truncated to {max_chars} characters]"
+        return ToolResult(
+            output=output,
+            success=response.status_code < 400,
+            error=None if response.status_code < 400 else f"HTTP {response.status_code}",
+            data={
+                "status": response.status_code,
+                "headers": dict(response.headers),
+                "body": response.text,
+            },
+        )
+
+
+def http_tools(client: httpx.AsyncClient | None = None) -> list[BaseTool]:
+    return [HttpRequestTool(client or make_http_client())]
 
 
 def web_tools(
