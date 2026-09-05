@@ -68,6 +68,13 @@ pip install -e .
 local-agents
 ```
 
+Or, without installing the package, use the startup script at the repository root:
+
+```bash
+python main.py            # same as `local-agents`; all arguments pass through
+python main.py list
+```
+
 Requirements: Python 3.10+ and a running Ollama with at least one model pulled
 (for example `ollama pull qwen3:8b`).
 
