@@ -59,10 +59,14 @@ class MainMenu:
     def _entries(self) -> dict[str, tuple[str, str]]:
         entries: dict[str, tuple[str, str]] = {}
         index = 1
-        for name, _ in self.runtime.available_agents():
-            entries[str(index)] = ("agent", name)
-            entries[name] = ("agent", name)
-            index += 1
+        enabled = {name for name, _ in self.runtime.available_agents()}
+        for _category, regs in self.runtime.registry.grouped():
+            for reg in regs:
+                if reg.name not in enabled:
+                    continue
+                entries[str(index)] = ("agent", reg.name)
+                entries[reg.name] = ("agent", reg.name)
+                index += 1
         for key, label in (
             ("agents", "Agent Manager"),
             ("models", "Model Manager"),
@@ -75,18 +79,24 @@ class MainMenu:
 
     def _print_menu(self, entries: dict[str, tuple[str, str]]) -> None:
         console = self.console
+        style = console.style
         console.print()
         console.print("Which agent would you like to deploy?")
+        numbers = {name: key for key, (kind, name) in entries.items() if key.isdigit()}
+        for category, regs in self.runtime.registry.grouped():
+            visible = [r for r in regs if r.name in numbers]
+            if not visible:
+                continue
+            console.print()
+            console.print(style.dim(f"  {category}"))
+            for reg in visible:
+                console.print(
+                    f"  {numbers[reg.name]:>2}  {reg.label:<20}{style.dim(reg.description)}"
+                )
         console.print()
         for key, (kind, name) in entries.items():
-            if not key.isdigit():
-                continue
-            label = f"{name.title()} Agent" if kind == "agent" else name
-            if kind == "agent":
-                desc = dict(self.runtime.available_agents()).get(name, "")
-                console.print(f"  {key:>2}  {label:<18}{console.style.dim(desc)}")
-            else:
-                console.print(f"  {key:>2}  {label}")
+            if key.isdigit() and kind != "agent":
+                console.print(f"  {key:>2}  {name}")
         console.print("   q  Quit")
         console.print()
 

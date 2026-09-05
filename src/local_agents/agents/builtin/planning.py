@@ -12,6 +12,7 @@ from local_agents.agents.registry import register_agent
 class PlanningAgent(BaseAgent):
     """Create structured execution plans and optionally execute them via delegation."""
 
+    category = "Research & Knowledge"
     model_role = "reasoning"
     default_tool_groups = ("filesystem",)
     can_delegate = True

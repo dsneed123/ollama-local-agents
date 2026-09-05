@@ -10,6 +10,7 @@ from local_agents.agents.registry import register_agent
 class WebAgent(BaseAgent):
     """Retrieve and analyse web content."""
 
+    category = "Research & Knowledge"
     model_role = "general"
     default_tool_groups = ("web",)
     tool_first = True

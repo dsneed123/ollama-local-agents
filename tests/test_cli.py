@@ -52,11 +52,12 @@ async def test_menu_lists_agents_from_registry_and_quits(
     assert "● Connected" in text and "Models: 5 detected" in text
     assert "Recommended:" in text and "Coding    → qwen2.5-coder:14b" in text
     assert "Which agent would you like to deploy?" in text
-    for index, label in enumerate(["Research", "Coding", "Web", "File", "Data", "Planning"], 1):
-        assert f"{index:>2}  {label} Agent" in text
-    assert (
-        " 7  Agent Manager" in text and " 8  Model Manager" in text and " 9  Create Agent" in text
-    )
+    assert " 1  Research Agent" in text and " 2  Web Agent" in text
+    assert "Software Development" in text and "Coding Agent" in text and "SQL Agent" in text
+    total = len(registry.names())
+    assert f"{total + 1:>2}  Agent Manager" in text
+    assert f"{total + 2:>2}  Model Manager" in text
+    assert f"{total + 3:>2}  Create Agent" in text
     assert "q  Quit" in text and "Bye." in text
 
 
@@ -74,7 +75,9 @@ async def test_menu_reflects_custom_agent_without_core_changes(
     async with _runtime(settings, fake_ollama, registry) as runtime:
         await MainMenu(runtime, console).run()
     text = out.getvalue()
-    assert " 7  Extra Agent" in text and " 8  Agent Manager" in text
+    total = len(registry.names())
+    assert f"{total:>2}  Extra Agent" in text and f"{total + 1:>2}  Agent Manager" in text
+    assert "  General\n" in text  # default category heading for the custom agent
 
 
 async def test_menu_handles_ollama_down(settings: Settings, registry: AgentRegistry) -> None:
@@ -114,7 +117,8 @@ async def test_menu_deploys_agent_and_streams_answer(
 async def test_menu_model_manager_refresh_info_and_default(
     settings: Settings, fake_ollama: FakeOllama, registry: AgentRegistry
 ) -> None:
-    console, out = _console("8", "r", "i", "1", "2", "x", "b", "q")
+    models_key = str(len(registry.names()) + 2)
+    console, out = _console(models_key, "r", "i", "1", "2", "x", "b", "q")
     async with _runtime(settings, fake_ollama, registry) as runtime:
         await MainMenu(runtime, console).run()
         assert runtime.settings.default_model == "qwen2.5-coder:14b"
@@ -131,7 +135,10 @@ async def test_menu_model_manager_refresh_info_and_default(
 async def test_menu_agent_manager_toggle_and_model(
     settings: Settings, fake_ollama: FakeOllama, registry: AgentRegistry
 ) -> None:
-    console, out = _console("7", "2", "e", "m", "ghost", "m", "llama3.1:8b", "s", "b", "b", "q")
+    agents_key = str(len(registry.names()) + 1)
+    console, out = _console(
+        agents_key, "2", "e", "m", "ghost", "m", "llama3.1:8b", "s", "b", "b", "q"
+    )
     async with _runtime(settings, fake_ollama, registry) as runtime:
         await MainMenu(runtime, console).run()
         assert runtime.settings.agent("coding").enabled is False
@@ -153,7 +160,8 @@ async def test_menu_create_agent(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.chdir(tmp_path)
-    console, out = _console("9", "My Agent!", "Does things", "q")
+    create_key = str(len(registry.names()) + 3)
+    console, out = _console(create_key, "My Agent!", "Does things", "q")
     async with _runtime(settings, fake_ollama, registry) as runtime:
         await MainMenu(runtime, console).run()
         assert "my-agent" in runtime.registry

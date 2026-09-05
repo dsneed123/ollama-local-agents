@@ -10,12 +10,35 @@ from local_agents.errors import AgentNotFoundError, AgentRegistrationError
 
 
 def test_builtin_agents_discovered_in_menu_order(registry: AgentRegistry) -> None:
-    assert registry.names() == ["research", "coding", "web", "file", "data", "planning"]
+    names = registry.names()
+    assert names[:6] == ["research", "coding", "web", "file", "data", "planning"]
+    assert len(names) == 27
     assert registry.discovered
     assert registry.get("Coding").name == "coding"
     assert "research" in registry and "nope" not in registry
-    assert len(registry) == 6
-    assert [r.name for r in registry] == registry.names()
+    assert [r.name for r in registry] == names
+
+
+def test_grouped_by_category(registry: AgentRegistry) -> None:
+    groups = registry.grouped()
+    assert [c for c, _ in groups] == [
+        "Research & Knowledge",
+        "Software Development",
+        "Data & Files",
+        "Writing & Communication",
+        "Everyday",
+    ]
+    by_cat = dict(groups)
+    assert [r.name for r in by_cat["Research & Knowledge"]] == ["research", "web", "planning"]
+    assert by_cat["Data & Files"][2].label == "SQL Agent"
+    assert registry.registration("coding").label == "Coding Agent"
+
+    class Odd(BaseAgent):
+        name = "odd"
+        category = "Zeta"
+
+    registry.register(Odd)
+    assert registry.grouped()[-1][0] == "Zeta"
 
 
 def test_register_decorator_with_custom_registry() -> None:

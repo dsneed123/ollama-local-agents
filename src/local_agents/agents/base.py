@@ -146,6 +146,10 @@ class BaseAgent:
 
     name: ClassVar[str] = ""
     description: ClassVar[str] = ""
+    #: Menu grouping; free-form, see ``local_agents.agents.registry.CATEGORY_ORDER``.
+    category: ClassVar[str] = "General"
+    #: Human-friendly label for menus; defaults to ``"<Name> Agent"``.
+    display_name: ClassVar[str] = ""
     system_prompt: ClassVar[str] = "You are a helpful assistant."
     model_role: ClassVar[ModelRole] = "general"
     requires_tool_calling: ClassVar[bool] = True

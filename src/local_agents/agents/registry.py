@@ -33,6 +33,16 @@ log = logging.getLogger(__name__)
 ENTRY_POINT_GROUP = "local_agents.agents"
 DEFAULT_AGENT_DIR = "agents"
 
+#: Display order for categories; unknown categories are appended alphabetically.
+CATEGORY_ORDER: tuple[str, ...] = (
+    "Research & Knowledge",
+    "Software Development",
+    "Data & Files",
+    "Writing & Communication",
+    "Everyday",
+    "General",
+)
+
 A = TypeVar("A", bound=type[BaseAgent])
 
 
@@ -45,6 +55,14 @@ class AgentRegistration:
     order: int = 0
     hidden: bool = False
     config_path: Path | None = None
+
+    @property
+    def category(self) -> str:
+        return self.cls.category
+
+    @property
+    def label(self) -> str:
+        return self.cls.display_name or f"{self.name.title()} Agent"
 
 
 @dataclass
@@ -135,6 +153,15 @@ class AgentRegistry:
 
     def names(self) -> list[str]:
         return [r.name for r in self.list_agents()]
+
+    def grouped(self, *, include_hidden: bool = False) -> list[tuple[str, list[AgentRegistration]]]:
+        """Registrations grouped by category in :data:`CATEGORY_ORDER`."""
+        groups: dict[str, list[AgentRegistration]] = {}
+        for reg in self.list_agents(include_hidden=include_hidden):
+            groups.setdefault(reg.category, []).append(reg)
+        known = [c for c in CATEGORY_ORDER if c in groups]
+        extra = sorted(c for c in groups if c not in CATEGORY_ORDER)
+        return [(c, groups[c]) for c in [*known, *extra]]
 
     def __contains__(self, name: object) -> bool:
         return isinstance(name, str) and name.lower() in self._agents

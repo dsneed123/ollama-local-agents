@@ -10,6 +10,7 @@ from local_agents.agents.registry import register_agent
 class FileAgent(BaseAgent):
     """Work with documents and directory structure inside the workspace."""
 
+    category = "Data & Files"
     model_role = "general"
     default_tool_groups = ("filesystem", "data")
     system_prompt = """You are a file management assistant operating inside a workspace directory.

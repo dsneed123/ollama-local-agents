@@ -10,6 +10,7 @@ from local_agents.agents.registry import register_agent
 class DataAgent(BaseAgent):
     """Inspect datasets, compute statistics, and explain what the numbers mean."""
 
+    category = "Data & Files"
     model_role = "reasoning"
     default_tool_groups = ("data", "filesystem")
     system_prompt = """You are a data analyst working with local CSV, TSV, JSON and JSONL files.

@@ -25,6 +25,7 @@ from local_agents.errors import LocalAgentsError, ProviderConnectionError
 from local_agents.models.selection import ROLES, ModelSelector
 from local_agents.scaffold.generator import create_agent_scaffold, suggest_agent_name
 from local_agents.tools.base import BaseTool
+from local_agents.tools.factory import TOOL_GROUPS
 
 PROG = "local-agents"
 
@@ -77,7 +78,7 @@ def build_parser() -> argparse.ArgumentParser:
     create.add_argument(
         "--tools",
         default="filesystem",
-        help="comma-separated tool groups (filesystem,shell,web,data)",
+        help=f"comma-separated tool groups ({','.join(TOOL_GROUPS)})",
     )
     create.add_argument("--force", action="store_true", help="overwrite existing files")
 
@@ -192,11 +193,13 @@ async def _cmd_run(args: argparse.Namespace, runtime: AgentRuntime, console: Con
 
 def _cmd_list(runtime: AgentRuntime, console: Console) -> int:
     console.print("Available agents:")
-    console.print()
-    for reg in runtime.registry.list_agents():
-        enabled = runtime.settings.agent(reg.name).enabled
-        marker = "●" if enabled else "○"
-        console.print(f"  {marker} {reg.name:<12} {reg.description}")
+    for category, regs in runtime.registry.grouped():
+        console.print()
+        console.print(console.style.dim(f"  {category}"))
+        for reg in regs:
+            enabled = runtime.settings.agent(reg.name).enabled
+            marker = "●" if enabled else "○"
+            console.print(f"  {marker} {reg.name:<12} {reg.description}")
     if runtime.discovery and runtime.discovery.errors:
         console.print()
         for path, error in runtime.discovery.errors:

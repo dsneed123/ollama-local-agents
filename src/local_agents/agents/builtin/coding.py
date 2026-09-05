@@ -10,6 +10,7 @@ from local_agents.agents.registry import register_agent
 class CodingAgent(BaseAgent):
     """A careful software engineer confined to the configured workspace."""
 
+    category = "Software Development"
     model_role = "coding"
     default_tool_groups = ("filesystem", "shell")
     system_prompt = """You are a careful senior software engineer working in a local repository.

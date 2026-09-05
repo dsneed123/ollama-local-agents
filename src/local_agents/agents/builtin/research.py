@@ -10,6 +10,7 @@ from local_agents.agents.registry import register_agent
 class ResearchAgent(BaseAgent):
     """Break a question into sub-questions, gather evidence, and synthesize an answer."""
 
+    category = "Research & Knowledge"
     model_role = "general"
     default_tool_groups = ("web", "filesystem")
     tool_first = True
