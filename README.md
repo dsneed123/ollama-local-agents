@@ -82,6 +82,10 @@ delete unless you turn that on. Destructive shell commands are blocked outright,
 the rest ask for confirmation. SQLite databases open read-only. This guards against
 accidents; it is not a sandbox for untrusted code.
 
+The apply agent reads personal details from `profile.md` and writes drafts to
+`applications/`. Both are in `.gitignore` so they never end up in a commit; keep them
+that way if you use a different filename.
+
 ## Configuration
 
 Optional. Drop a `local-agents.yaml` in the project or in `~/.config/local-agents/`.

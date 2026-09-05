@@ -27,3 +27,11 @@ htmlcov/
 # Local runtime data
 .local-agents/
 *.local.yaml
+
+# Personal data used by the apply agent (never commit)
+profile.md
+profile.yaml
+profile.yml
+resume.md
+cv.md
+applications/

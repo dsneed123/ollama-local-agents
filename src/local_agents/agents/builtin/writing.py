@@ -122,7 +122,8 @@ create `profile.md` by asking the user for: name, contact details, location, wor
 authorization, current role, work history (role, company, dates, 3 bullet achievements \
 each), education, skills, links (portfolio, GitHub, LinkedIn), salary expectations, \
 availability, and any standard answers they reuse (why us, strengths, weaknesses, \
-references). Save what they tell you and continue.
+references). Save what they tell you and continue. Remind them once that profile.md and \
+applications/ contain personal data and are git-ignored; they should not be committed.
 
 Getting the questions:
 - A URL: try extract_form_fields first to list the exact fields, options and required \
