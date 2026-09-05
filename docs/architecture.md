@@ -36,7 +36,7 @@ BaseAgent.stream(task)
 | `models.ollama` | `OllamaProvider` (HTTP, discovery cache, errors) and `OllamaModel` (bound, lazy `auto()`) | — |
 | `models.selection` | `ModelSelector` role-based scoring | Adjusting `ModelRequirements` / hints |
 | `tools.base` | `BaseTool`, `ToolParameter`, `ToolResult`, `ToolSet` with permissions and approval hook | Subclassing `BaseTool` |
-| `tools.*` | filesystem, shell, web, http, data, sqlite, text, convert, calculator tool groups; `ToolKit` factory | Adding a group to `ToolKit.group` |
+| `tools.*` | filesystem, shell, web, http, data, sqlite, text, convert, calculator, forms tool groups; `ToolKit` factory | Adding a group to `ToolKit.group` |
 | `security` | `Workspace` path boundary, `CommandPolicy`, `PermissionSet` | Extra patterns / allow-lists |
 | `memory` | `BaseMemory`, `ConversationMemory`, `JSONFileMemory` | Implementing `BaseMemory` (e.g. vector store) |
 | `agents.base` | `BaseAgent` loop, events, text tool protocol | Subclassing |

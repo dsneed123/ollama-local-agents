@@ -12,7 +12,7 @@ from local_agents.errors import AgentNotFoundError, AgentRegistrationError
 def test_builtin_agents_discovered_in_menu_order(registry: AgentRegistry) -> None:
     names = registry.names()
     assert names[:6] == ["research", "coding", "web", "file", "data", "planning"]
-    assert len(names) == 27
+    assert len(names) == 28
     assert registry.discovered
     assert registry.get("Coding").name == "coding"
     assert "research" in registry and "nope" not in registry

@@ -153,7 +153,7 @@ class BaseTool(ABC):
             cleaned = self.validate(arguments)
             outcome = await self.execute(**cleaned)
         except SecurityError as exc:
-            log.warning("Tool %s blocked: %s", self.name, exc)
+            log.info("Tool %s blocked: %s", self.name, exc)
             result = ToolResult.fail(str(exc), blocked=True, hint=exc.hint)
         except LocalAgentsError as exc:
             result = ToolResult.fail(str(exc), hint=exc.hint)

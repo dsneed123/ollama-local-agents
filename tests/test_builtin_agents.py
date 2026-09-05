@@ -27,7 +27,7 @@ def test_agent_metadata_is_complete(cls) -> None:
 
 def test_no_duplicate_names() -> None:
     names = [cls.name for cls in BUILTIN_AGENTS]
-    assert len(names) == len(set(names)) == 27
+    assert len(names) == len(set(names)) == 28
 
 
 @pytest.mark.parametrize("cls", BUILTIN_AGENTS, ids=lambda c: c.name)

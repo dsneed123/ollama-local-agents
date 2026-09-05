@@ -30,6 +30,7 @@ from local_agents.agents.builtin.data_files import (
     SystemAgent,
 )
 from local_agents.agents.builtin.writing import (
+    ApplicationAgent,
     MeetingNotesAgent,
     SummarizerAgent,
     TranslationAgent,
@@ -67,6 +68,7 @@ BUILTIN_AGENTS = (
     SummarizerAgent,
     TranslationAgent,
     MeetingNotesAgent,
+    ApplicationAgent,
     ChatAgent,
     TutorAgent,
     MathAgent,
@@ -76,6 +78,7 @@ BUILTIN_AGENTS = (
 __all__ = [
     "BUILTIN_AGENTS",
     "ApiAgent",
+    "ApplicationAgent",
     "BrainstormAgent",
     "ChatAgent",
     "CodeReviewAgent",

@@ -54,7 +54,7 @@ clears memory, `/back` returns to the menu.
 
 ## Agents
 
-27 agents, all built from the same base class. A few highlights:
+28 agents, all built from the same base class. A few highlights:
 
 | | |
 |---|---|
@@ -63,7 +63,7 @@ clears memory, `/back` returns to the menu.
 | **data, sql, logs, convert** | CSV/JSON statistics, read-only SQLite queries, log frequency tables, format conversion |
 | **file, notes, system** | find and organise files, keep markdown notes, inspect disk/processes/env |
 | **research, web, summarize, planning** | search and cite, summarise documents and pages, plan and delegate |
-| **writer, translate, meeting** | drafting and editing, translation that keeps formatting, action items from notes |
+| **writer, translate, meeting, apply** | drafting and editing, translation that keeps formatting, action items from notes, job applications and surveys filled from a profile |
 | **chat, tutor, math, brainstorm** | quick answers, explanations, exact calculation, idea generation |
 
 `local-agents list` shows all of them with descriptions.

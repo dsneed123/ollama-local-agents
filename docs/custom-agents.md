@@ -48,7 +48,7 @@ Class attributes the runtime reads:
 | `system_prompt` | Model instructions |
 | `model_role` | Drives automatic model selection |
 | `requires_tool_calling` | When `True` (default) and the agent has tools, prefer models with native tool calling |
-| `default_tool_groups` | Any of `filesystem`, `shell`, `web`, `http`, `data`, `sqlite`, `text`, `convert`, `calculator` |
+| `default_tool_groups` | Any of `filesystem`, `shell`, `web`, `http`, `data`, `sqlite`, `text`, `convert`, `calculator`, `forms` |
 | `default_permissions` | A `PermissionSet` overriding the workspace-derived defaults |
 | `can_delegate` | Adds a `delegate` tool wired to the `AgentRuntime` |
 | `tool_first` | Nudge the model once if it answers without using any tool |

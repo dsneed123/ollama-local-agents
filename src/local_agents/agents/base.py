@@ -324,6 +324,9 @@ class BaseAgent:
     def build_system_prompt(self, context: Any = None) -> str:
         """Compose the system prompt. Override to add dynamic context."""
         prompt = (self.config.system_prompt or self.system_prompt).strip()
+        prompt += (
+            "\n\nAlways reply in the language the user writes in (English unless they use another)."
+        )
         if self.workspace is not None:
             prompt += (
                 f"\n\nWorkspace: {self.workspace.root}\n"

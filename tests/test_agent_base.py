@@ -33,7 +33,7 @@ async def test_plain_answer_without_tools() -> None:
     assert result.stop_reason == "final" and result.iterations == 1
     assert result.agent == "greeter" and result.model == "scripted-model"
     sent = model.calls[0]["messages"]
-    assert sent[0].role == "system" and sent[0].content == "Be brief."
+    assert sent[0].role == "system" and sent[0].content.startswith("Be brief.")
     assert sent[-1] == Message.user("hi")
     assert model.calls[0]["tools"] == []  # no tools -> no specs sent
 
@@ -162,7 +162,7 @@ def test_capabilities_and_workspace_prompt(workspace: Workspace) -> None:
 
 def test_system_prompt_override_via_config() -> None:
     agent = Greeter(model=ScriptedModel(), config=AgentConfig(system_prompt="Custom."))
-    assert agent.build_system_prompt() == "Custom."
+    assert agent.build_system_prompt().startswith("Custom.")
 
 
 def test_parse_text_tool_calls_variants() -> None:

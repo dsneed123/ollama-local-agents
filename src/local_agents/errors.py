@@ -8,6 +8,8 @@ which the CLI renders as a friendly message instead of a traceback.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 
 class LocalAgentsError(Exception):
     """Base class for all framework errors."""
@@ -123,7 +125,10 @@ class WorkspaceViolationError(SecurityError):
         self.root = root
         super().__init__(
             f"Path '{path}' is outside the workspace '{root}'",
-            hint="Widen the workspace with --workspace or the `workspace.root` setting.",
+            hint=(
+                f"Use a path relative to the workspace root, e.g. '{Path(path).name}'. "
+                "(The workspace can be widened with --workspace or `workspace.root`.)"
+            ),
         )
 
 
