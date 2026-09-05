@@ -14,6 +14,7 @@ from local_agents.tools.calculator import calculator_tools
 from local_agents.tools.convert import convert_tools
 from local_agents.tools.data import data_tools
 from local_agents.tools.filesystem import filesystem_tools
+from local_agents.tools.forms import form_tools
 from local_agents.tools.shell import ConfirmCallback, shell_tools
 from local_agents.tools.sqlite import sqlite_tools
 from local_agents.tools.text import text_tools
@@ -29,6 +30,7 @@ TOOL_GROUPS: tuple[str, ...] = (
     "text",
     "convert",
     "calculator",
+    "forms",
 )
 
 
@@ -72,6 +74,8 @@ class ToolKit:
             return convert_tools(self.workspace)
         if name == "calculator":
             return calculator_tools()
+        if name == "forms":
+            return form_tools(self.workspace, self.http_client) if self.allow_network else []
         raise ValueError(f"Unknown tool group {name!r}; valid groups: {', '.join(TOOL_GROUPS)}")
 
     def build(

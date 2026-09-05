@@ -24,6 +24,7 @@ from local_agents.tools.filesystem import (
     WriteFileTool,
     filesystem_tools,
 )
+from local_agents.tools.forms import FormFieldsTool, form_tools, parse_form_fields
 from local_agents.tools.shell import ShellTool, shell_tools
 from local_agents.tools.sqlite import SQLiteQueryTool, SQLiteSchemaTool, sqlite_tools
 from local_agents.tools.text import CountMatchesTool, RegexTestTool, TailFileTool, text_tools
@@ -53,6 +54,7 @@ __all__ = [
     "DuckDuckGoBackend",
     "EditFileTool",
     "FindFilesTool",
+    "FormFieldsTool",
     "HttpRequestTool",
     "InspectDataTool",
     "ListDirectoryTool",
@@ -80,8 +82,10 @@ __all__ = [
     "data_tools",
     "evaluate",
     "filesystem_tools",
+    "form_tools",
     "html_to_text",
     "http_tools",
+    "parse_form_fields",
     "shell_tools",
     "sqlite_tools",
     "text_tools",
